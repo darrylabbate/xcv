@@ -4,14 +4,41 @@
         <meta charset="utf-8" />
         <title>xcv</title>
         <link rel="stylesheet" href="style.css" />
+        <script src="lz-string.min.js"></script>
+        <script>
+            function createURL() {
+                var txt = document.getElementById("main-text").value;
+                var encoded = LZString.compressToBase64(txt);
+                var fullURL = window.location.protocol +
+                    window.location.host + window.location.pathname +
+                    "#" + encoded;
+                document.getElementById("url-test").innerHTML = fullURL;
+            }
+        </script>
     </head>
     <body>
-        <div id="main">
-            <h1>xcv</h1>
-            <textarea autofocus id="main-text" spellcheck="false"></textarea>
+        <div class="main">
+            <kbd>x</kbd><kbd>c</kbd><kbd>v</kbd>
+            <br>
+            <br>
+            <a id="url-test"></a>
+            <br>
+            <br>
+            <a onclick="createURL()">GET LINK</a>
+            <br>
+            <br>
+            <textarea autofocus
+                      id="main-text"
+                      autocomplete="off"
+                      autocapitalize="off"
+                      spellcheck="false"
+                      placeholder="input text here">
+            </textarea>
         </div>
         <script>
-            document.getElementById("main-text").innerHTML = window.location.hash;
+            document.getElementById("main-text").innerHTML =
+    LZString.decompressFromBase64(window.location.hash.substr(1));
+    window.location.hash.substr(1);
         </script>
     </body>
 </html>
