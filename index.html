@@ -1,44 +1,65 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>xcv</title>
-        <link rel="stylesheet" href="style.css" />
-        <script src="lz-string.min.js"></script>
-        <script>
-            function createURL() {
-                var txt = document.getElementById("main-text").value;
-                var encoded = LZString.compressToBase64(txt);
-                var fullURL = window.location.protocol +
+<head>
+<meta charset="utf-8" />
+<title>xcv</title>
+<link rel="stylesheet" href="style.css" />
+<script src="lzma-min.js"></script>
+<script>
+    var lzma = new LZMA("lzma_worker-min.js");
+    function createURL() {
+        var txt = document.getElementById("main-text").value;
+        lzma.compress(txt, 1, function on_compress_complete(compressed) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var b64 = reader.result.substr(reader.result.indexOf(",")+1);
+                var fullURL = window.location.protocol + "//" +
                     window.location.host + window.location.pathname +
-                    "#" + encoded;
+                    "#" + b64;
                 document.getElementById("url-test").innerHTML = fullURL;
+            };
+            reader.readAsDataURL(new Blob([new Uint8Array(compressed)]));
+        }
+        );
+    }
+</script>
+</head>
+<body>
+<div class="main">
+    <a id="url-test"></a>
+    <br>
+    <a onclick="createURL()">GET LINK</a>
+    <br>
+    <textarea autofocus
+              id="main-text"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              placeholder="input text here">
+    </textarea>
+</div>
+<script>
+    var b64 = window.location.hash.substr(1);
+    if (b64.length > 0) {
+        var lzma = new LZMA("lzma_worker-min.js");
+        fetch("data:application/octet-stream;base64,"+b64)
+            .then(r => r.blob())
+            .then(function(blob) {
+            var reader = new FileReader();
+            reader.onload = function(){
+            var compressed = Array.from(new Uint8Array(reader.result));
+            lzma.decompress(compressed, function(plaintext, err){
+            if (err) {
+                alert("Decompression error: " + err);
+                return;
             }
-        </script>
-    </head>
-    <body>
-        <div class="main">
-            <kbd>x</kbd><kbd>c</kbd><kbd>v</kbd>
-            <br>
-            <br>
-            <a id="url-test"></a>
-            <br>
-            <br>
-            <a onclick="createURL()">GET LINK</a>
-            <br>
-            <br>
-            <textarea autofocus
-                      id="main-text"
-                      autocomplete="off"
-                      autocapitalize="off"
-                      spellcheck="false"
-                      placeholder="input text here">
-            </textarea>
-        </div>
-        <script>
-            document.getElementById("main-text").innerHTML =
-    LZString.decompressFromBase64(window.location.hash.substr(1));
-    window.location.hash.substr(1);
-        </script>
-    </body>
+
+            document.getElementById("main-text").value = plaintext;
+            });
+            };
+            reader.readAsArrayBuffer(blob);
+        });
+    }
+</script>
+</body>
 </html>
