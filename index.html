@@ -6,6 +6,11 @@
 <link rel="stylesheet" href="style.css" />
 <script src="lzma.js"></script>
 <script>
+    function copy() {
+        var text = document.querySelector("#url-test");
+        text.select();
+        document.execCommand("copy");
+    }
     var lzma = new LZMA("lzma_worker.js");
     function createURL() {
         var txt = document.getElementById("main-text").value;
@@ -19,8 +24,7 @@
                 document.getElementById("url-test").value = fullURL;
             };
             reader.readAsDataURL(new Blob([new Uint8Array(compressed)]));
-        }
-        );
+        });
     }
 </script>
 </head>
@@ -28,7 +32,7 @@
 <div class="main">
     <textarea id="url-test"></textarea>
     <br>
-    <a onclick="createURL()">GET LINK</a>
+    <button id="copyme">GET LINK</button>
     <br>
     <textarea autofocus
               id="main-text"
@@ -38,6 +42,8 @@
               placeholder="input text here"></textarea>
 </div>
 <script>
+    document.querySelector("#copyme").addEventListener("click", createURL);
+    document.querySelector("#copyme").addEventListener("click", copy);
     var b64 = window.location.hash.substr(1);
     if (b64.length > 0) {
         var lzma = new LZMA("lzma_worker.js");
