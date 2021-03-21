@@ -11,10 +11,20 @@
         const te = new TextEncoder();
         var cc = document.getElementById("char-count");
         var txt = document.getElementById("main-text").value;
-        var bytelen = te.encode(txt).length;
-        var charlen = txt.length
-        cc.innerHTML = charlen + " chars, " + bytelen + " bytes (UTF-8)";
-        return bytelen;
+        var byteLen = te.encode(txt).length;
+        var charLen = txt.length
+        var lenStr = "";
+        if (charLen === 1)
+            lenStr += "1 char, ";
+        else
+            lenStr += charLen + " chars, ";
+        if (byteLen === 1)
+            lenStr += "1 byte";
+        else
+            lenStr += byteLen + " bytes";
+        lenStr += " (UTF-8)";
+        cc.innerHTML = lenStr;
+        return byteLen;
     }
     function copyURL() {
         var text = document.querySelector("#url");
@@ -42,6 +52,12 @@
                 document.getElementById("url").value = fullURL;
                 document.getElementById("link-box").style.display =
                     "block";
+                var cmp = document.getElementById("compression");
+                var urlLen = fullURL.length;
+                var ratio = countChars() === 0
+                          ? "-"
+                          : (urlLen / countChars() * 100).toFixed(2).replace(/\.?0*$/,"");
+                cmp.innerHTML = urlLen + " bytes (" + ratio  + "% of original)";
             };
             reader.readAsDataURL(new Blob([new Uint8Array(compressed)]));
         });
@@ -75,6 +91,7 @@
         010-1.06z"></path></svg></a>
         </div>
     </div>
+    <div id="compression"></div>
     <div class="url-group">
         <div class="popup-url">
         <input readonly type="text" id="url">
